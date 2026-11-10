@@ -2,7 +2,7 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Run Terminal Media Preview",
+      "name": "Run vscode-terminal-preview",
       "type": "extensionHost",
       "request": "launch",
       "args": [

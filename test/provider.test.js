@@ -19,7 +19,7 @@ function setup({ preview = true, extensions = ['png', 'jpg'], stat } = {}) {
       getConfiguration(section) {
         return {
           get(key, fallback) {
-            if (section === 'terminalMediaPreview' && key === 'extensions') return settings.extensions;
+            if (section === 'terminalPreview' && key === 'extensions') return settings.extensions;
             if (section === 'workbench.editor' && key === 'enablePreview') return settings.preview;
             return fallback;
           }
@@ -97,7 +97,19 @@ test('setting accepts leading dots, uppercase and user-defined types', async () 
   assert.deepEqual(links.map(link => link.uri.path), ['/ssd1/images/a.png', '/ssd1/images/c.mp4']);
 });
 
-test('empty media list disables interception', async () => {
+test('configured text and code files follow preview while unlisted types fall through', async () => {
+  const { provider, commands } = setup({ extensions: ['txt', 'md', 'js'] });
+  const links = await provider.provideTerminalLinks(context('notes.txt README.md app.js a.png'), token());
+  assert.deepEqual(links.map(link => link.uri.path), [
+    '/ssd1/images/notes.txt', '/ssd1/images/README.md', '/ssd1/images/app.js'
+  ]);
+  for (const link of links) {
+    await provider.handleTerminalLink(link);
+  }
+  assert.deepEqual(commands, links.map(link => ['vscode.open', link.uri, { preview: true }]));
+});
+
+test('empty file type list disables interception', async () => {
   const { provider, stats } = setup({ extensions: [] });
   assert.deepEqual(await provider.provideTerminalLinks(context('a.png'), token()), []);
   assert.equal(stats.length, 0);
@@ -144,11 +156,11 @@ test('failed editor opens are reported', async () => {
   const { provider, api, errors } = setup();
   api.commands.executeCommand = async () => { throw new Error('Cannot open image'); };
   await provider.handleTerminalLink({ uri: URI.file('/tmp/a.png') });
-  assert.deepEqual(errors, ['Terminal Media Preview: Cannot open image']);
+  assert.deepEqual(errors, ['vscode-terminal-preview: Cannot open image']);
 });
 
 test('real filesystem: outside-workspace file links, directories and missing paths do not', async t => {
-  const directory = await fs.mkdtemp(path.join(os.tmpdir(), 'terminal-media-preview-'));
+  const directory = await fs.mkdtemp(path.join(os.tmpdir(), 'vscode-terminal-preview-'));
   t.after(() => fs.rm(directory, { recursive: true, force: true }));
   await fs.writeFile(path.join(directory, '图 像.png'), Buffer.from('test fixture'));
   await fs.mkdir(path.join(directory, 'directory.png'));
@@ -163,10 +175,14 @@ test('real filesystem: outside-workspace file links, directories and missing pat
   assert.equal(links[0].uri.fsPath, path.join(directory, '图 像.png'));
 });
 
-test('manifest activates on startup in workspace host with only media defaults', () => {
+test('manifest uses the publishing identity and defaults to media types', () => {
+  assert.equal(manifest.name, 'vscode-terminal-preview');
+  assert.equal(manifest.displayName, 'vscode-terminal-preview');
+  assert.equal(manifest.publisher, 'crd233');
+  assert.equal(manifest.repository.url, 'https://github.com/crd2333/vscode-terminal-preview.git');
   assert.deepEqual(manifest.extensionKind, ['workspace']);
   assert.ok(manifest.activationEvents.includes('onStartupFinished'));
-  const defaults = manifest.contributes.configuration.properties['terminalMediaPreview.extensions'].default;
+  const defaults = manifest.contributes.configuration.properties['terminalPreview.extensions'].default;
   assert.ok(defaults.includes('png') && defaults.includes('jpg') && defaults.includes('mp4'));
   assert.ok(!defaults.includes('js') && !defaults.includes('ts') && !defaults.includes('py'));
 });

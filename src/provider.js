@@ -17,7 +17,7 @@ function createProvider(vscode) {
         return [];
       }
       const cwd = getCwd(context.terminal);
-      const configured = vscode.workspace.getConfiguration('terminalMediaPreview', cwd)
+      const configured = vscode.workspace.getConfiguration('terminalPreview', cwd)
         .get('extensions', []);
       const extensions = new Set(configured.map(value => value.replace(/^\./, '').toLowerCase()));
       const candidates = findCandidates(context.line, extensions);
@@ -47,7 +47,7 @@ function createProvider(vscode) {
           return {
             startIndex: candidate.startIndex,
             length: candidate.length,
-            tooltip: 'Open Media (follows editor preview setting)',
+            tooltip: 'Open File (follows editor preview setting)',
             uri
           };
         } catch {
@@ -62,12 +62,12 @@ function createProvider(vscode) {
       const preview = vscode.workspace.getConfiguration('workbench.editor', link.uri)
         .get('enablePreview', true);
       try {
-        // Use the default editor (including built-in/custom media editors).
+        // Use the default editor associated with the file type.
         // VS Code manages preview replacement and double-click-to-keep itself.
         await vscode.commands.executeCommand('vscode.open', link.uri, { preview });
       } catch (error) {
         await vscode.window.showErrorMessage(
-          `Terminal Media Preview: ${error instanceof Error ? error.message : String(error)}`
+          `vscode-terminal-preview: ${error instanceof Error ? error.message : String(error)}`
         );
       }
     }

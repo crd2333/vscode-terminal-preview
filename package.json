@@ -1,9 +1,9 @@
 {
-  "name": "terminal-media-preview",
-  "displayName": "Terminal Media Preview",
-  "description": "Open media paths from terminal links using workbench.editor.enablePreview, without changing code links.",
+  "name": "vscode-terminal-preview",
+  "displayName": "vscode-terminal-preview",
+  "description": "Make terminal file links respect workbench.editor.enablePreview for configurable file types.",
   "version": "0.1.0",
-  "publisher": "local-tools",
+  "publisher": "crd233",
   "license": "MIT",
   "engines": {
     "vscode": "^1.93.0"
@@ -14,8 +14,8 @@
   "keywords": [
     "terminal",
     "preview",
-    "image",
-    "media"
+    "links",
+    "files"
   ],
   "extensionKind": [
     "workspace"
@@ -34,9 +34,9 @@
   },
   "contributes": {
     "configuration": {
-      "title": "Terminal Media Preview",
+      "title": "vscode-terminal-preview",
       "properties": {
-        "terminalMediaPreview.extensions": {
+        "terminalPreview.extensions": {
           "type": "array",
           "items": {
             "type": "string",
@@ -66,7 +66,7 @@
             "aac",
             "m4a"
           ],
-          "markdownDescription": "仅接管这些扩展名的终端文件链接（不区分大小写，可带前导点）。打开时遵守 `workbench.editor.enablePreview`。实际可播放的格式取决于 VS Code 和已安装的媒体编辑器。",
+          "markdownDescription": "使用编辑器预览设置打开这些扩展名的终端文件链接（不区分大小写，可带前导点）。默认包含常见图片、音视频类型，可配置为其他文件类型；未列出的类型保持原生行为。",
           "scope": "resource"
         }
       }
@@ -74,10 +74,14 @@
   },
   "scripts": {
     "test": "node --test",
-    "package": "vsce package --no-dependencies --allow-missing-repository"
+    "package": "vsce package --no-dependencies"
   },
   "devDependencies": {
     "@vscode/vsce": "^3.7.0",
     "vscode-uri": "^3.1.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/crd2333/vscode-terminal-preview.git"
   }
 }
