@@ -1,0 +1,83 @@
+{
+  "name": "terminal-media-preview",
+  "displayName": "Terminal Media Preview",
+  "description": "Open media paths from terminal links using workbench.editor.enablePreview, without changing code links.",
+  "version": "0.1.0",
+  "publisher": "local-tools",
+  "license": "MIT",
+  "engines": {
+    "vscode": "^1.93.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "keywords": [
+    "terminal",
+    "preview",
+    "image",
+    "media"
+  ],
+  "extensionKind": [
+    "workspace"
+  ],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "main": "./src/extension.js",
+  "capabilities": {
+    "untrustedWorkspaces": {
+      "supported": true
+    },
+    "virtualWorkspaces": {
+      "supported": false
+    }
+  },
+  "contributes": {
+    "configuration": {
+      "title": "Terminal Media Preview",
+      "properties": {
+        "terminalMediaPreview.extensions": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^\\.?[a-zA-Z0-9]+$"
+          },
+          "uniqueItems": true,
+          "default": [
+            "png",
+            "jpg",
+            "jpeg",
+            "gif",
+            "webp",
+            "bmp",
+            "ico",
+            "svg",
+            "avif",
+            "mp4",
+            "webm",
+            "mov",
+            "m4v",
+            "ogv",
+            "mp3",
+            "wav",
+            "ogg",
+            "oga",
+            "flac",
+            "aac",
+            "m4a"
+          ],
+          "markdownDescription": "仅接管这些扩展名的终端文件链接（不区分大小写，可带前导点）。打开时遵守 `workbench.editor.enablePreview`。实际可播放的格式取决于 VS Code 和已安装的媒体编辑器。",
+          "scope": "resource"
+        }
+      }
+    }
+  },
+  "scripts": {
+    "test": "node --test",
+    "package": "vsce package --no-dependencies --allow-missing-repository"
+  },
+  "devDependencies": {
+    "@vscode/vsce": "^3.7.0",
+    "vscode-uri": "^3.1.0"
+  }
+}
